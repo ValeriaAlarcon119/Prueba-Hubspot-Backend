@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Contactos</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome CSS for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .action-icons {
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    .action-icons:hover {
+      opacity: 0.7;
+    }
+    .delete-icon {
+      color: red;
+    }
+    .edit-icon {
+      color: blue;
+    }
+    .form-container {
+      max-width: 600px; 
+      margin: 0 auto; 
+    }
+    .form-control {
+      font-size: 14px; 
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="mb-4 text-center">Gestión de Contactos</h1>
+
+    <!-- Formulario de Registro de Contactos -->
+    <div class="form-container">
+      <h2>Registrar Contacto</h2>
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="firstName">Nombre:</label>
+          <input type="text" class="form-control" id="firstName" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellido:</label>
+          <input type="text" class="form-control" id="lastName" name="lastName" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo electrónico:</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Número de teléfono:</label>
+          <input type="text" class="form-control" id="phone" name="phone">
+        </div>
+        <button type="submit" class="btn btn-primary">Registrar</button>
+      </form>
+    </div>
+
+    <!-- Formulario de Búsqueda de Contactos -->
+    <div class="form-container mt-5">
+      <h2>Buscar Contacto por Correo Electrónico</h2>
+      <form id="searchContactForm">
+        <div class="form-group">
+          <label for="searchEmail">Correo electrónico:</label>
+          <input type="email" class="form-control" id="searchEmail" name="searchEmail" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+    </div>
+
+    <!-- Botón para Mostrar Contactos -->
+    <div class="text-center mt-5">
+      <button id="listContactsButton" class="btn btn-info" data-toggle="modal" data-target="#contactsModal">Mostrar Contactos</button>
+    </div>
+  </div>
+
+  <!-- Modal para Mostrar Lista de Contactos -->
+  <div class="modal fade" id="contactsModal" tabindex="-1" role="dialog" aria-labelledby="contactsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="contactsModalLabel">Lista de Contactos</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="contactsListModal" style="max-height: 400px; overflow-y: auto;">
+          <!-- Tabla para mostrar los contactos -->
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Correo Electrónico</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="contactsTableBody">
+              <!-- Lista de contactos se insertará aquí -->
+              <tr><td colspan="5">Cargando contactos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Mostrar Detalles del Contacto -->
+  <div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="contactModalLabel">Detalles del Contacto</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="contactModalBody">
+          <!-- Detalles del contacto se insertarán aquí -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="modalEditButton">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Mostrar Resultado de Búsqueda -->
+  <div class="modal fade" id="searchResultModal" tabindex="-1" role="dialog" aria-labelledby="searchResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="searchResultModalLabel">Resultado de la Búsqueda</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="searchResultModalBody">
+          <!-- El resultado de la búsqueda se insertará aquí -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+   async function listContactsInModal(after = null) {
+  try {
+    const url = after ? `/contacts?after=${after}` : '/contacts';
+    const response = await fetch(url, { method: 'GET' });
+
+    if (response.ok) {
+      const data = await response.json();
+      const contactsHtml = data.results.map(contact => 
+        `<tr>
+          <td>${contact.properties.firstname || 'N/A'}</td>
+          <td>${contact.properties.lastname || 'N/A'}</td>
+          <td>${contact.properties.email || 'N/A'}</td>
+          <td>
+            <span class="action-icons edit-icon" data-id="${contact.id}" data-toggle="modal" data-target="#contactModal">
+              <i class="fas fa-pencil-alt"></i>
+            </span>
+            <span class="action-icons delete-icon" data-id="${contact.id}">
+              <i class="fas fa-trash-alt"></i>
+            </span>
+          </td>
+        </tr>`
+      ).join('');
+
+      document.getElementById('contactsTableBody').innerHTML = contactsHtml;
+      // Manejar paginación
+      if (data.paging && data.paging.next) {
+        const nextLink = data.paging.next.link;
+        const nextAfter = new URL(nextLink).searchParams.get('after');
+        // Guardar la URL para la próxima llamada si es necesario
+        document.getElementById('contactsListModal').dataset.nextAfter = nextAfter;
+      }
+    } else {
+      document.getElementById('contactsTableBody').innerHTML = `<tr><td colspan="5">Error al listar los contactos.</td></tr>`;
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('contactsTableBody').innerHTML = `<tr><td colspan="5">Error al listar los contactos.</td></tr>`;
+  }
+}
+
+// Mostrar lista de contactos cuando se abre el modal
+$('#contactsModal').on('show.bs.modal', () => listContactsInModal());
+
+// Manejo de acciones de contacto (editar y eliminar) dentro del modal
+document.getElementById('contactsListModal').addEventListener('click', async (event) => {
+  if (event.target.closest('.edit-icon')) {
+    const contactId = event.target.closest('.edit-icon').dataset.id;
+    // Fetch con detalles de un cliente en concreto por id
+    try {
+      const response = await fetch(`/contacts/${contactId}`, { method: 'GET' });
+      if (response.ok) {
+        const contact = await response.json();
+        const modalBody = document.getElementById('contactModalBody');
+        modalBody.innerHTML = 
+          `<form id="modalEditForm">
+            <div class="form-group">
+              <label for="modalFirstName">Nombre:</label>
+              <input type="text" class="form-control" id="modalFirstName" name="firstname" value="${contact.properties.firstname || ''}">
+            </div>
+            <div class="form-group">
+              <label for="modalLastName">Apellido:</label>
+              <input type="text" class="form-control" id="modalLastName" name="lastname" value="${contact.properties.lastname || ''}">
+            </div>
+            <div class="form-group">
+              <label for="modalEmail">Correo electrónico:</label>
+              <input type="email" class="form-control" id="modalEmail" name="email" value="${contact.properties.email || ''}">
+            </div>
+            <div class="form-group">
+              <label for="modalPhone">Teléfono:</label>
+              <input type="text" class="form-control" id="modalPhone" name="phone" value="${contact.properties.phone || ''}">
+            </div>
+            <input type="hidden" id="modalContactId" value="${contact.id}">
+          </form>`;
+        document.getElementById('modalEditButton').dataset.id = contact.id;
+      } else {
+        alert('Error al obtener los detalles del contacto.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al obtener los detalles del contacto.');
+    }
+  } else if (event.target.closest('.delete-icon')) {
+    const contactId = event.target.closest('.delete-icon').dataset.id;
+    if (confirm('¿Estás seguro de que quieres eliminar este contacto?')) {
+      try {
+        const response = await fetch(`/contacts/${contactId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('Contacto eliminado exitosamente.');
+          listContactsInModal(); // Refresca la lista de contactos
+        } else {
+          alert('Error al eliminar el contacto.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar el contacto.');
+      }
+    }
+  }
+});
+
+// Editar contacto desde el modal de detalles
+document.getElementById('modalEditButton').addEventListener('click', async () => {
+  const contactId = document.getElementById('modalContactId').value;
+  const form = document.getElementById('modalEditForm');
+  const formData = new FormData(form);
+  const updatedData = Object.fromEntries(formData.entries());
+
+  // Obtén los valores originales del contacto
+  const originalFirstName = form.querySelector('#modalFirstName').defaultValue;
+  const originalLastName = form.querySelector('#modalLastName').defaultValue;
+  const originalEmail = form.querySelector('#modalEmail').defaultValue;
+  const originalPhone = form.querySelector('#modalPhone').defaultValue;
+
+  // Función para validar el formato del email
+  function validarEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+  // Verifica si el email tiene un formato válido
+  if (!validarEmail(updatedData.email)) {
+    alert('Ese tipo de correo no es válido. Por favor, introduce un correo electrónico correcto.');
+    return; // No continuar con la solicitud de actualización
+  }
+
+  // Verifica si hay cambios
+  if (
+    updatedData.firstname === originalFirstName &&
+    updatedData.lastname === originalLastName &&
+    updatedData.email === originalEmail &&
+    updatedData.phone === originalPhone
+  ) {
+    alert('Error: ¡Es necesario editar al menos un campo para actualizar el contacto!');
+    return; // No continuar con la solicitud de actualización
+  }
+// solicitud para actualizar un contacto mediante una solicitud HTTP PUT
+  try {
+    const response = await fetch(`/update-contact`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contactId: contactId,
+        updatedProperties: updatedData
+      })
+    });
+
+    if (response.ok) {
+      alert('Contacto actualizado exitosamente.');
+      $('#contactsModal').modal('hide');
+      listContactsInModal(); // Refresca la lista de contactos
+    } else {
+      alert('Error al actualizar el contacto.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al actualizar el contacto.');
+  }
+});
+
+// Buscar Contacto por Correo Electrónico
+document.getElementById('searchContactForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const email = document.getElementById('searchEmail').value;
+
+  try {
+    const response = await fetch(`/contacts/email/${email}`, { method: 'GET' });
+
+    if (response.ok) {
+      const contact = await response.json();
+      const modalBody = document.getElementById('searchResultModalBody');
+      modalBody.innerHTML = 
+        `<h3>Resultado:</h3>
+        <p><strong>Nombre:</strong> ${contact.properties.firstname || 'N/A'}</p>
+        <p><strong>Apellido:</strong> ${contact.properties.lastname || 'N/A'}</p>
+        <p><strong>Correo electrónico:</strong> ${contact.properties.email || 'N/A'}</p>
+        <p><strong>Teléfono:</strong> ${contact.properties.phone || 'N/A'}</p>`;
+      $('#searchResultModal').modal('show'); // Mostrar el modal con el resultado de la búsqueda
+    } else {
+      document.getElementById('searchResultModalBody').innerHTML = `<p>Contacto no encontrado.</p>`;
+      $('#searchResultModal').modal('show'); // Mostrar el modal con el mensaje de contacto no encontrado
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('searchResultModalBody').innerHTML = `<p>Error al buscar el contacto.</p>`;
+    $('#searchResultModal').modal('show'); // Mostrar el modal con el mensaje de error
+  }
+});
+
+// Enviar el formulario de contacto
+document.getElementById('contactForm').addEventListener('submit', async (event) => {
+  event.preventDefault(); // Evita el envío automático del formulario
+
+  // Obtener los valores de los campos
+  const firstName = document.getElementById('firstName').value;
+  const lastName = document.getElementById('lastName').value;
+  const email = document.getElementById('email').value;
+  const phone = document.getElementById('phone').value;
+
+  // Verificar si todos los campos están completos
+  if (!firstName || !lastName || !email || !phone) {
+    alert('Error: Todos los campos son obligatorios.');
+    return; 
+  }
+
+  // Validar el formato del número de teléfono (solo números permitidos)
+  if (isNaN(phone)) {
+    alert('Error: El número de teléfono debe contener solo números.');
+    return; 
+  }
+
+  // Función para validar el formato del email
+  function validarEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+  // Si el email no es válido, mostrar un alert
+  if (!validarEmail(email)) {
+    alert('Error: El correo electrónico no es válido.');
+    return;
+  }
+
+  // Si todos los datos son válidos, enviar el formulario
+  const formData = {
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    phone: phone
+  };
+
+  try {
+    const response = await fetch('/contacts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    if (response.ok) {
+      alert('Contacto registrado exitosamente.');
+      document.getElementById('contactForm').reset(); // Limpiar el formulario
+    } else if (response.status === 409) {
+      // Asumiendo que el código de estado 409 se usa para conflictos, como un contacto duplicado
+      alert('Error: Este contacto ya está creado.');
+    } else {
+      alert('Error al registrar el contacto.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error al registrar el contacto.');
+  }
+});
+  </script>
+</body>
+</html>
